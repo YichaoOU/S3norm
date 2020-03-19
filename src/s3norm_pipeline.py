@@ -2,6 +2,29 @@ import os
 import numpy as np
 import subprocess
 from subprocess import call
+import pandas as pd
+import uuid
+
+
+def genereate_dummy_input(file_list):
+	# also generate a temp input for this program
+	cwd = os.getcwd()
+	temp_input = cwd+"/"+str(uuid.uuid4()).split("-")[-1]
+	df = pd.read_csv(file_list,sep="\t",header=None)
+	df = df.dropna(how='all')
+	shape1 = df.shape[0]
+	df2 = df.dropna()
+	shape2 = df2.shape[0]
+	if shape2 < shape1:
+		print ("generating dummy input")
+		control_file=cwd+"/"+"dummy_control.bdg"
+		command = """awk -F "\t" '{print $1"\t"$2"\t"$3"\t1"}' %s > %s"""%(df.at[0,0],control_file)
+		os.system(command)
+		df = df.fillna("dummy_control.bdg")
+		df.to_csv(temp_input,sep="\t",header=False,index=False)
+		file_list = temp_input
+	return file_list
+
 
 def S3norm_pipeline(NTmethod, B_init, fdr_thresh, rank_lim, upperlim, lowerlim, p_method, common_pk_binary, common_bg_binary, script_folder, file_list, reference_method, cross_mark):
 	reference_name = 'average_ref.bedgraph'
@@ -48,6 +71,7 @@ def S3norm_pipeline(NTmethod, B_init, fdr_thresh, rank_lim, upperlim, lowerlim, 
 	call('if [ -d average_ref_bedgraph ]; then rm -r average_ref_bedgraph; mkdir average_ref_bedgraph; else mkdir average_ref_bedgraph; fi', shell=True)
 	call('mv average_ref.*bedgraph average_ref_bedgraph/', shell=True)
 	print('Organize folder......Done')
+	call('mv %s'%(file_list), shell=True)
 
 
 
@@ -189,7 +213,7 @@ def main(argv):
 
 	######### run s3norm
 	print('start S3norm.......')
-	S3norm_pipeline(NTmethod, B_init, fdr_thresh, rank_lim, upperlim, lowerlim, p_method, common_pk_binary, common_bg_binary, script_folder, file_list, reference_method, cross_mark)
+	S3norm_pipeline(NTmethod, B_init, fdr_thresh, rank_lim, upperlim, lowerlim, p_method, common_pk_binary, common_bg_binary, script_folder, genereate_dummy_input(file_list), reference_method, cross_mark)
 
 
 if __name__=="__main__":
