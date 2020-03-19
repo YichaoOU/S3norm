@@ -1,4 +1,15 @@
 # S3norm
+
+## Changes
+
+1. Relaxed required 2 columns input. See `file_list` example below. 
+
+Now, if user input file list contains only 1 column, a dummy control bedgraph will be generated.
+
+2. Dependencies
+
+Now, this program also need the `pandas` library.
+
 ## From  Reads Count (RC) to S3norm normalized -log10(p-value)
 
 #### Motivation: The quantitative comparison of epigenomic data across multiple cell types has become a promising way to understand the biological function of epigenetic modifications. Due to difference in sequencing depth and signal-to-noise ratio, however, the raw epigenomic data may not reflect the real biological difference between cell types. Existing normalization methods are mainly designed for scaling signals in either the whole-genome or the peak regions, without considering the potentially different scaling factors between peak and background regions. Results: We propose a new data normalization method, S3norm, that normalizes the data by using a monotonic nonlinear data transformation to match signals in both the peak regions and the background regions differently, such that both sequencing depth and signal-to-noise ratio between data sets can be simulatenously normalized. We show that the S3norm normalized epigenomic data can better reflect real biological differences across multiple cell types.
